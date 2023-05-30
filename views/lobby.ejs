@@ -1,0 +1,121 @@
+<!DOCTYPE html>
+<html>
+   <head>
+      <meta charset="utf-8" />
+      <meta name="viewport" content="width=device-width, initial-scale=1" />
+      <title>lobby</title>
+      <style>
+         body {
+            margin: 0;
+            padding: 0;
+            font-family: sans-serif;
+         }
+         .container {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            margin-top: 20px;
+         }
+         .header {
+            font-size: 30px;
+            margin-bottom: 20px;
+         }
+         .room-list {
+            max-height: 300px;
+            overflow-y: auto;
+            border: 1px solid black;
+            padding: 10px;
+            margin-top: 20px;
+            margin-bottom: 20px;
+         }
+         .room {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 10px;
+            font-size: 18px;
+         }
+         .room-link {
+            text-decoration: none;
+            color: blue;
+            margin-right: 10px;
+            font-size: 18px;
+         }
+         .refresh-button {
+            padding: 10px;
+            background-color: white;
+            border: 1px solid black;
+            border-radius: 5px;
+            cursor: pointer;
+            margin-bottom: 10px;
+         }
+         .create-room-button {
+            padding: 10px;
+            background-color: white;
+            border: 1px solid black;
+            border-radius: 5px;
+            cursor: pointer;
+         }
+         .racetrack-selector {
+            display: flex;
+            align-items: center;
+            font-size: 18px;
+         }
+         .racetrack-selector select {
+            font-size: 16px;
+         }
+      </style>
+   </head>
+   <body>
+      <div class="container">
+         <div class="header">lobby</div>
+
+         <!--
+         <input type="text" id="user-name" class="name-input" placeholder="Enter your name" style="font-size: 16px;">
+         -->
+
+         <div class="room-list">
+            <% if (rooms.length > 0) { %>
+               <% rooms.forEach(room => { %>
+                  <div class="room">
+                     <a class="room-link" href="/<%= room.id %>"><%= room.roomName %></a>
+                     <div><%= room.numClients %> people</div>
+                  </div>
+               <% }) %>
+            <% } else { %>
+               <div>No rooms available</div>
+            <% } %>
+         </div>
+
+         <button class="refresh-button" onclick="location.reload()">Refresh</button>
+         <input type="text" id="room-name" placeholder="Enter room name" style="font-size: 16px;">
+
+         <button class="create-room-button" onclick="createRoom()">Create Room</button></a>
+
+         <script src="/socket.io/socket.io.js"></script>
+         <script>
+            const socket = io();
+            function createRoom() {
+               function generateRandomString(length) {
+                  const characters = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
+                  let randomString = '';
+            
+                  for (let i = 0; i < length; i++) {
+                     const randomIndex = Math.floor(Math.random() * characters.length);
+                     randomString += characters.charAt(randomIndex);
+                  }
+            
+                  return randomString;
+               }
+
+               const roomName = document.getElementById('room-name').value;
+               const roomId = generateRandomString(16);
+               socket.emit('create-room', roomId, roomName); // Send the room name to the server
+               socket.on('room-created', (roomId, roomName) => {
+                  // Redirect to the generated roomId
+                  window.location.href = `/${roomId}`;
+               });
+            }
+         </script>
+      </div>
+   </body>
+</html>
